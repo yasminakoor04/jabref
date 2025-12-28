@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
 class FileAnnotationTest {
 
     @Test
@@ -42,10 +45,21 @@ class FileAnnotationTest {
     @Test
     void abbreviateAnnotationName() {
         final FileAnnotation fileAnnotation = new FileAnnotation("John Robertson",
-                LocalDateTime.of(2020, 4, 18, 17, 10), 1,
-                "this is an annotation that is very long and goes over the character limit of 45",
-                FileAnnotationType.FREETEXT, Optional.empty());
+                                                                 LocalDateTime.of(2020, 4, 18, 17, 10), 1,
+                                                                 "this is an annotation that is very long and goes over the character limit of 45",
+                                                                 FileAnnotationType.FREETEXT, Optional.empty());
 
         assertEquals("this is an annotation that is very long and g...", fileAnnotation.toString());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+                "D:20170512224019-03'00', 2017-05-12T22:40:19",
+                "D:20170512224019+03'00', 2017-05-12T22:40:19",
+                "D:20170512224019Z, 2017-05-12T22:40:19"
+    })
+    void extractModifiedTimeIgnoresTimezone(String input, String expected) {
+        LocalDateTime date = FileAnnotation.extractModifiedTime(input);
+        assertEquals(LocalDateTime.parse(expected), date);
     }
 }
